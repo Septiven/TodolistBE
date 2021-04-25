@@ -1,0 +1,23 @@
+// inner join
+SELECT * FROM products p JOIN
+category c ON p.category_id=c.id;
+
+// inner join
+SELECT p.id,p.name,c.name FROM products p JOIN
+category c ON p.category_id=c.id;
+
+// left join
+SELECT * FROM products p LEFT JOIN
+category c ON p.category_id=c.id;
+
+// right join
+SELECT * FROM products p RIGHT JOIN
+category c ON p.category_id=c.id;
+
+// outer join
+SELECT * FROM products p 
+LEFT JOIN category c ON p.category_id = c.id
+UNION
+SELECT * FROM products p 
+RIGHT JOIN category c ON p.category_id = c.id
+
