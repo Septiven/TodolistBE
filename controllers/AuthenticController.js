@@ -1,7 +1,7 @@
 const validator = require('validator')
 const fs = require('fs')
 const handlebars = require('handlebars')
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken') 
 
 // Import Helpers
 const hashPassword = require('./../helpers/Hash')
@@ -29,7 +29,7 @@ const register = (req, res) => {
 
         // Step3. Hash data password
         try {
-            const passwordHashed = hashPassword(data.password)
+            const passwordHashed = hashPassword(data.password) 
             data.password = passwordHashed
             data.activation_code = activationCode()
             // let newDataToSend = {
@@ -130,7 +130,7 @@ const sendEmail = (req, res) => {
 
 // ######### Login
 const login = (req, res) => {
-    try {
+    try { 
         // Step1. Get All Data
         const data = req.body
         
@@ -167,7 +167,7 @@ const login = (req, res) => {
                 }else{
                     res.status(200).send({
                         error: true,
-                        message: 'Email & Password Does Not Match'
+                        message: 'Acc not found'
                     })
                 }
             } catch (error) {
@@ -259,7 +259,95 @@ const emailConfirmation = (req, res) => {
 //     })
 // }
 
-// ########## forgot password
+// Forgot Password
+const forgotPassword = (req, res) => {
+    try {
+        const data = req.body
+        const inputEmail = data.inputEmail
+        console.log (inputEmail)
+
+        data.password = newPassword ()
+        let newPass = data.password
+        
+        let newPassHashed = hashPassword(data.password)
+        data.password = newPassHashed
+        // console.log (inputEmail)
+
+        let queryCheck = `SELECT * FROM users WHERE email = '${inputEmail}'`
+        db.query (queryCheck, (err, result) => {
+            console.log ("check1")
+            try {
+                if (err) throw err
+
+                if (result.length === 1){
+                    // Patch password
+                    let queryPatch = `UPDATE users SET password = '${data.password}' WHERE email = '${inputEmail}'`
+                    db.query (queryPatch, (err, result) => {
+                        console.log ("check2")
+                        try {
+                            if (err) throw err
+                            
+                            fs.readFile ('C:/Users/ACER/Desktop/Backend/Authentic_System/template/ForgotPass.html', {encoding: "utf-8"}, (err, file) => {
+                                if (err) throw err
+
+                                const template = handlebars.compile (file)
+                                const templateRes = template ({email: data.inputEmail, newPassword: newPass})
+
+                                transporter.sendMail ({
+                                    from: "septivencorp@gmail.com",
+                                    to:"septivenlukas@gmail.com",
+                                    // to: data.email,
+                                    subject: "New Password Request",
+                                    html: templateRes
+                                })
+
+                                .then ((response) => {
+                                    res.status (200).send ({
+                                        error: false,
+                                        message: "New Password has been sent to your email."
+                                    })
+                                })
+
+                                .catch ((err) => {
+                                    res.status (500).send ({
+                                        error: true,
+                                        message: err.message
+                                    })
+                                })
+                            })
+
+
+                        } catch (error) {
+                            res.status(500).send({
+                                error: true,
+                                message: error.message
+                            })
+                        }
+                    })
+                } else {
+                    res.status(200).send({
+                        error: true,
+                        message: "Invalid Email"
+                    })
+                }
+
+
+            } catch (error) {
+                res.status(500).send({
+                    error: true,
+                    message: error.message
+                }) 
+            }
+        })
+
+
+    } catch (error) {
+        res.status(406).send ({
+            error: true,
+            message: error.message
+        })   
+    }
+}
 
 // ########## Check user verify(tanpa middleware)
 // const checkUserVerify = (req, res) => {

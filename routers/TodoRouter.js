@@ -9,6 +9,7 @@ const jwtVerify = require('./../middleware/JWT')
 
 Router.post('/create', jwtVerify, todoController.create)
 Router.post('/get', jwtVerify, todoController.get)
-Router.post('/delete', jwtVerify,todoController.deleteData)
+Router.post('/delete', todoController.deleteData)
+Router.post('/update', todoController.update)
 
 module.exports = Router
